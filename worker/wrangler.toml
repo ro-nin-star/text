@@ -1,0 +1,13 @@
+name = "text-uzenetfal"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+GITHUB_OWNER = "ro-nin-star"
+GITHUB_REPO = "text"
+ALLOWED_ORIGIN = "https://ro-nin-star.github.io"
+
+# Secretek (NE ide kerüljenek, hanem `wrangler secret put` paranccsal):
+#   GITHUB_TOKEN    - fine-grained GitHub PAT, Issues: Read and write
+#   ADMIN_PASSWORD  - admin ("ronin") jelszó
+#   SESSION_SECRET  - véletlenszerű, hosszú string a session token aláírásához

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Üzenetfal</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>Üzenetfal</h1>
+    <button id="admin-toggle-btn" type="button">Admin belépés</button>
+  </header>
+
+  <main>
+    <section id="admin-panel" class="admin-panel hidden">
+      <form id="login-form" class="login-form">
+        <input id="admin-password" type="password" placeholder="Admin jelszó" autocomplete="current-password" />
+        <button type="submit">Belépés</button>
+        <button id="admin-logout-btn" type="button" class="hidden">Kilépés</button>
+      </form>
+      <p id="login-error" class="error hidden"></p>
+    </section>
+
+    <form id="message-form" class="message-form">
+      <input id="author-input" type="text" placeholder="Név (opcionális, alapból Anonim)" maxlength="50" />
+      <textarea id="text-input" placeholder="Üzeneted..." maxlength="1000" required></textarea>
+      <div class="form-actions">
+        <button type="submit">Küldés</button>
+        <button id="refresh-btn" type="button">Frissítés</button>
+      </div>
+      <p id="submit-error" class="error hidden"></p>
+    </form>
+
+    <section id="message-list" class="message-list">
+      <p id="loading-text">Betöltés...</p>
+    </section>
+  </main>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
