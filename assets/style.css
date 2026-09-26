@@ -1,178 +1,265 @@
 :root {
-  --bg: #0f1115;
-  --surface: #1a1d24;
-  --border: #2a2e37;
-  --text: #e6e6e6;
-  --muted: #9aa1ac;
-  --accent: #5b8cff;
-  --admin: #ff9f43;
-  --error: #ff5b5b;
+  --bg: #faf5ee;
+  --surface: #ffffff;
+  --surface-2: #fdf1e3;
+  --border: #ece0d0;
+  --text: #3d2f24;
+  --muted: #8d7b6a;
+  --accent: #df7a3d;
+  --accent-dark: #c8632a;
+  --accent-soft: rgba(223, 122, 61, 0.12);
+  --admin: #4f9271;
+  --admin-soft: rgba(79, 146, 113, 0.12);
+  --error: #c9483f;
+  --radius: 18px;
+  --shadow: 0 10px 30px rgba(90, 60, 30, 0.08);
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "Karla", system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
 }
 
+h1, h2, h3 {
+  font-family: "Fraunces", Georgia, serif;
+}
+
+/* ===== FEJLÉC – hangulatos fotó ===== */
 .site-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border);
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 3.4rem 1.5rem 1.8rem;
+  background-image:
+    linear-gradient(180deg, rgba(48, 28, 14, 0.2) 0%, rgba(38, 22, 12, 0.72) 100%),
+    url("https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1600&q=70");
+  background-size: cover;
+  background-position: center 55%;
+  color: #fff9f2;
 }
 
 .site-header h1 {
-  font-size: 1.4rem;
+  font-size: 2rem;
   margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+#admin-toggle-btn {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  border: none;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.55rem 1.2rem;
+}
+
+#admin-toggle-btn:hover {
+  background: #fff;
+  color: var(--accent-dark);
 }
 
 main {
   max-width: 640px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 2.5rem 1.25rem 4rem;
 }
 
-button {
-  cursor: pointer;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  border-radius: 6px;
-  padding: 0.5rem 0.9rem;
-  font-size: 0.9rem;
-}
-
-button:hover {
-  border-color: var(--accent);
-}
-
+/* ===== ADMIN PANEL ===== */
 .admin-panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
   margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
 }
 
 .login-form {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .login-form input {
   flex: 1;
+  min-width: 160px;
 }
 
+/* ===== ŰRLAP KÁRTYA ===== */
 .message-form {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.85rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
 }
 
-input,
-textarea {
-  background: var(--bg);
+input, textarea {
+  background: #fffdfb;
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.55rem 0.7rem;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
   font-family: inherit;
   font-size: 0.95rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-textarea {
-  min-height: 90px;
-  resize: vertical;
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
+
+textarea { min-height: 110px; resize: vertical; }
 
 .form-actions {
   display: flex;
   justify-content: space-between;
+  gap: 0.75rem;
 }
 
-.error {
-  color: var(--error);
-  font-size: 0.85rem;
-  margin: 0;
+.form-actions button[type="submit"] {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fffaf5;
+  border: none;
+  font-weight: 700;
+  padding: 0.65rem 1.5rem;
+  border-radius: 999px;
 }
 
-.hidden {
-  display: none !important;
+.form-actions button[type="submit"]:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
 }
 
+#refresh-btn {
+  border-radius: 999px;
+}
+
+/* ===== ÜZENET KÁRTYÁK ===== */
 .message-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .message-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
+  border-radius: var(--radius);
+  padding: 1.3rem 1.4rem;
+  box-shadow: var(--shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.message-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(90, 60, 30, 0.12);
 }
 
 .message-card.closed {
-  opacity: 0.55;
+  opacity: 0.6;
 }
 
 .message-meta {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.8rem;
   color: var(--muted);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.55rem;
 }
 
 .message-author {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text);
 }
 
 .message-text {
   white-space: pre-wrap;
-  margin: 0 0 0.6rem 0;
+  margin: 0 0 0.4rem 0;
+  line-height: 1.6;
 }
 
+/* Admin válasz – melegebb zöld */
 .reply {
-  margin-top: 0.6rem;
-  padding: 0.6rem 0.8rem;
+  margin-top: 0.9rem;
+  padding: 0.8rem 1.1rem;
   border-left: 3px solid var(--admin);
-  background: rgba(255, 159, 67, 0.08);
-  border-radius: 0 6px 6px 0;
+  background: var(--admin-soft);
+  border-radius: 0 12px 12px 0;
 }
 
 .reply .message-author {
   color: var(--admin);
 }
 
+.reply-form {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.reply-form textarea {
+  flex: 1;
+  min-height: 60px;
+}
+
 .admin-actions {
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.6rem;
+  margin-top: 0.9rem;
 }
 
-.reply-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin-top: 0.6rem;
+.admin-actions button {
+  font-size: 0.82rem;
+  padding: 0.4rem 0.9rem;
 }
 
+/* ===== ÜRES ÁLLAPOT ===== */
 .empty-text {
   color: var(--muted);
   text-align: center;
+  padding: 3rem 1rem;
+  font-size: 1.15rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-style: italic;
 }
+
+/* Gombok általános */
+button {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  border-radius: 11px;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.18s ease;
+}
+
+button:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+}
+
+.hidden { display: none !important; }
+.error { color: var(--error); font-size: 0.85rem; margin: 0; }
