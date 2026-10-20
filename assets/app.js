@@ -28,6 +28,8 @@ function setAdminUiState() {
   els.adminPanel.classList.remove("hidden");
   els.loginForm.classList.toggle("hidden", isAdmin());
   els.adminLogoutBtn.classList.toggle("hidden", !isAdmin());
+  els.authorInput.classList.toggle("hidden", isAdmin());
+  els.textInput.placeholder = isAdmin() ? "Bejegyzés roninként..." : "Üzeneted...";
 }
 
 function formatDate(iso) {
@@ -116,7 +118,7 @@ function escapeHtml(str) {
 
 function renderMessage(message) {
   const card = document.createElement("article");
-  card.className = `message-card${message.state === "closed" ? " closed" : ""}`;
+  card.className = `message-card${message.state === "closed" ? " closed" : ""}${message.admin ? " admin-post" : ""}`;
 
   card.innerHTML = `
     <div class="message-meta">
@@ -125,6 +127,11 @@ function renderMessage(message) {
     </div>
     <p class="message-text">${escapeHtml(message.text)}</p>
   `;
+
+  // Videó beágyazás csak az admin által írt bejegyzésekben.
+  if (message.admin) {
+    extractYoutubeIds(message.text).forEach((id) => card.appendChild(renderVideoEmbed(id)));
+  }
 
   (message.replies || []).forEach((reply) => {
     card.appendChild(renderReply(reply));
@@ -259,10 +266,18 @@ els.messageForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   showError(els.submitError, "");
   try {
-    await apiFetch("/api/messages", {
-      method: "POST",
-      body: JSON.stringify({ author: els.authorInput.value, text: els.textInput.value }),
-    });
+    if (isAdmin()) {
+      await apiFetch("/api/admin/post", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${state.token}` },
+        body: JSON.stringify({ text: els.textInput.value }),
+      });
+    } else {
+      await apiFetch("/api/messages", {
+        method: "POST",
+        body: JSON.stringify({ author: els.authorInput.value, text: els.textInput.value }),
+      });
+    }
     els.authorInput.value = "";
     els.textInput.value = "";
     await loadMessages();

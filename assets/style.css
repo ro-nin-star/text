@@ -209,6 +209,10 @@ textarea { min-height: 110px; resize: vertical; }
   color: var(--admin);
 }
 
+.message-card.admin-post .message-author {
+  color: var(--admin);
+}
+
 .video-embed {
   position: relative;
   aspect-ratio: 16 / 9;

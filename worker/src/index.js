@@ -1,5 +1,7 @@
 const MESSAGE_LABEL = "message";
 const DELETED_LABEL = "deleted";
+const ADMIN_LABEL = "admin";
+const ADMIN_AUTHOR = "ronin";
 const ADMIN_REPLY_PREFIX = "**ronin (admin):**";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 óra
 const MAX_TEXT_LENGTH = 1000;
@@ -120,19 +122,25 @@ async function fetchComments(env, issueNumber) {
   }));
 }
 
+function hasLabel(issue, name) {
+  return (issue.labels || []).some((label) => (typeof label === "string" ? label : label.name) === name);
+}
+
 function isDeleted(issue) {
-  return (issue.labels || []).some((label) => (typeof label === "string" ? label : label.name) === DELETED_LABEL);
+  return hasLabel(issue, DELETED_LABEL);
 }
 
 async function toMessageDto(env, issue, { includeComments = false, includeIp = false } = {}) {
   const deleted = isDeleted(issue);
+  const admin = !deleted && hasLabel(issue, ADMIN_LABEL);
   const { author, text, ip } = parseMessageBody(issue.body);
   const dto = {
     id: issue.number,
-    author: deleted ? "Törölve" : author,
+    author: deleted ? "Törölve" : admin ? ADMIN_AUTHOR : author,
     text: deleted ? "Ez az üzenet törölve lett." : text,
     createdAt: issue.created_at,
     state: deleted ? "deleted" : issue.state,
+    admin,
   };
   if (includeIp) {
     dto.ip = ip;
@@ -183,6 +191,34 @@ async function handlePostMessage(request, env) {
     method: "POST",
     headers: { ...githubHeaders(env), "Content-Type": "application/json" },
     body: JSON.stringify({ title, body: issueBody, labels: [MESSAGE_LABEL] }),
+  });
+  if (!res.ok) {
+    return json({ error: `Nem sikerült létrehozni az üzenetet (${res.status}).` }, 502, env);
+  }
+  const issue = await res.json();
+  return json(await toMessageDto(env, issue, false), 201, env);
+}
+
+async function handleAdminPost(request, env) {
+  if (!(await requireAdmin(request, env))) {
+    return json({ error: "Nincs jogosultság." }, 401, env);
+  }
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body.text !== "string" || !body.text.trim()) {
+    return json({ error: "A szöveg mező kötelező." }, 400, env);
+  }
+  if (body.text.length > MAX_TEXT_LENGTH) {
+    return json({ error: `A szöveg legfeljebb ${MAX_TEXT_LENGTH} karakter lehet.` }, 400, env);
+  }
+  const text = body.text.trim();
+  const res = await fetch(githubApiUrl(env, "/issues"), {
+    method: "POST",
+    headers: { ...githubHeaders(env), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: `Üzenet – ${ADMIN_AUTHOR}`,
+      body: `**Feladó:** ${ADMIN_AUTHOR}\n\n${text}`,
+      labels: [MESSAGE_LABEL, ADMIN_LABEL],
+    }),
   });
   if (!res.ok) {
     return json({ error: `Nem sikerült létrehozni az üzenetet (${res.status}).` }, 502, env);
@@ -269,6 +305,9 @@ export default {
       }
       if (url.pathname === "/api/messages" && request.method === "POST") {
         return await handlePostMessage(request, env);
+      }
+      if (url.pathname === "/api/admin/post" && request.method === "POST") {
+        return await handleAdminPost(request, env);
       }
       if (url.pathname === "/api/admin/login" && request.method === "POST") {
         return await handleAdminLogin(request, env);
