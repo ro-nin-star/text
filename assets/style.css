@@ -1,18 +1,20 @@
+/* ===== TŰZ TÉMA – fekete / narancs, élő lánggal (fire.js rajzolja) =====
+   A korábbi, világos téma mentve: assets/style.classic.css */
 :root {
-  --bg: #faf5ee;
-  --surface: #ffffff;
-  --surface-2: #fdf1e3;
-  --border: #ece0d0;
-  --text: #3d2f24;
-  --muted: #8d7b6a;
-  --accent: #df7a3d;
-  --accent-dark: #c8632a;
-  --accent-soft: rgba(223, 122, 61, 0.12);
-  --admin: #4f9271;
-  --admin-soft: rgba(79, 146, 113, 0.12);
-  --error: #c9483f;
+  --bg: #0a0605;
+  --surface: rgba(22, 13, 9, 0.86);
+  --surface-2: #2a160c;
+  --border: rgba(255, 106, 26, 0.28);
+  --text: #f6e7d8;
+  --muted: #b08a70;
+  --accent: #ff7a1a;
+  --accent-dark: #e0480a;
+  --accent-soft: rgba(255, 122, 26, 0.16);
+  --admin: #ffc857;
+  --admin-soft: rgba(255, 200, 87, 0.1);
+  --error: #ff6b5e;
   --radius: 18px;
-  --shadow: 0 10px 30px rgba(90, 60, 30, 0.08);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
 }
 
 * { box-sizing: border-box; }
@@ -20,7 +22,10 @@
 body {
   margin: 0;
   font-family: "Karla", system-ui, -apple-system, sans-serif;
-  background: var(--bg);
+  background:
+    radial-gradient(ellipse 90% 45% at 50% 108%, rgba(255, 90, 10, 0.4), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--text);
   min-height: 100vh;
   line-height: 1.6;
@@ -30,41 +35,87 @@ h1, h2, h3 {
   font-family: "Fraunces", Georgia, serif;
 }
 
-/* ===== FEJLÉC – hangulatos fotó ===== */
+/* ===== LÁNG ===== */
+#fire-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Alulról felfelé lüktető parázsfény a láng mögött */
+body::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40vh;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 100% at 50% 100%, rgba(255, 120, 20, 0.35), transparent 70%);
+  animation: heat 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes heat {
+  0%   { opacity: 0.55; transform: scaleY(0.9); }
+  35%  { opacity: 1;    transform: scaleY(1.05); }
+  60%  { opacity: 0.7;  transform: scaleY(0.95); }
+  100% { opacity: 0.95; transform: scaleY(1.1); }
+}
+
+.site-header,
+main {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== FEJLÉC ===== */
 .site-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   gap: 1rem;
   padding: 3.4rem 1.5rem 1.8rem;
-  background-image:
-    linear-gradient(180deg, rgba(48, 28, 14, 0.2) 0%, rgba(38, 22, 12, 0.72) 100%),
-    url("https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1600&q=70");
-  background-size: cover;
-  background-position: center 55%;
-  color: #fff9f2;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(10, 6, 5, 0) 100%);
+  border-bottom: 1px solid rgba(255, 106, 26, 0.18);
+  color: #ffe2c2;
 }
 
 .site-header h1 {
-  font-size: 2rem;
+  font-size: 2.1rem;
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.01em;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  color: #ffd9a8;
+  animation: flicker 2.4s infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { text-shadow: 0 0 6px #ff9a2e, 0 0 18px #ff6a1a, 0 0 36px #d93a05; }
+  8%       { text-shadow: 0 0 4px #ff9a2e, 0 0 12px #ff6a1a, 0 0 26px #d93a05; }
+  15%      { text-shadow: 0 0 8px #ffb347, 0 0 22px #ff7a1a, 0 0 44px #e0480a; }
+  32%      { text-shadow: 0 0 5px #ff9a2e, 0 0 15px #ff6a1a, 0 0 30px #d93a05; }
+  47%      { text-shadow: 0 0 9px #ffc266, 0 0 24px #ff7a1a, 0 0 48px #e0480a; }
+  63%      { text-shadow: 0 0 5px #ff9a2e, 0 0 14px #ff6a1a, 0 0 28px #d93a05; }
+  81%      { text-shadow: 0 0 7px #ffb347, 0 0 20px #ff7a1a, 0 0 40px #e0480a; }
 }
 
 #admin-toggle-btn {
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--text);
-  border: none;
+  background: rgba(20, 10, 5, 0.7);
+  color: #ffd9a8;
+  border: 1px solid var(--border);
   font-weight: 600;
   border-radius: 999px;
   padding: 0.55rem 1.2rem;
 }
 
 #admin-toggle-btn:hover {
-  background: #fff;
-  color: var(--accent-dark);
+  background: rgba(255, 122, 26, 0.18);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255, 106, 26, 0.5);
 }
 
 main {
@@ -81,6 +132,7 @@ main {
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow);
+  backdrop-filter: blur(6px);
 }
 
 .login-form {
@@ -105,11 +157,12 @@ main {
   border-radius: var(--radius);
   padding: 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow), 0 0 28px rgba(255, 106, 26, 0.12);
+  backdrop-filter: blur(6px);
 }
 
 input, textarea {
-  background: #fffdfb;
+  background: rgba(0, 0, 0, 0.45);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -119,10 +172,14 @@ input, textarea {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
+input::placeholder, textarea::placeholder {
+  color: var(--muted);
+}
+
 input:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 0 18px rgba(255, 106, 26, 0.35);
 }
 
 textarea { min-height: 110px; resize: vertical; }
@@ -134,17 +191,20 @@ textarea { min-height: 110px; resize: vertical; }
 }
 
 .form-actions button[type="submit"] {
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  color: #fffaf5;
+  background: linear-gradient(135deg, #ffb02e, #ff5a0a 55%, #d93a05);
+  color: #1c0b04;
   border: none;
   font-weight: 700;
   padding: 0.65rem 1.5rem;
   border-radius: 999px;
+  box-shadow: 0 0 18px rgba(255, 106, 26, 0.5);
 }
 
 .form-actions button[type="submit"]:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.1);
   transform: translateY(-1px);
+  box-shadow: 0 0 28px rgba(255, 140, 30, 0.75);
+  color: #1c0b04;
 }
 
 #refresh-btn {
@@ -164,16 +224,18 @@ textarea { min-height: 110px; resize: vertical; }
   border-radius: var(--radius);
   padding: 1.3rem 1.4rem;
   box-shadow: var(--shadow);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  backdrop-filter: blur(6px);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
 .message-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 34px rgba(90, 60, 30, 0.12);
+  border-color: rgba(255, 140, 40, 0.6);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6), 0 0 26px rgba(255, 106, 26, 0.35);
 }
 
 .message-card.closed {
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .message-meta {
@@ -187,16 +249,17 @@ textarea { min-height: 110px; resize: vertical; }
 
 .message-author {
   font-weight: 700;
-  color: var(--text);
+  color: #ffd9a8;
 }
 
 .message-text {
   white-space: pre-wrap;
   margin: 0 0 0.4rem 0;
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
-/* Admin válasz – melegebb zöld */
+/* Admin válasz – arany parázs */
 .reply {
   margin-top: 0.9rem;
   padding: 0.8rem 1.1rem;
@@ -209,10 +272,15 @@ textarea { min-height: 110px; resize: vertical; }
   color: var(--admin);
 }
 
+.message-card.admin-post {
+  border-color: rgba(255, 200, 87, 0.45);
+}
+
 .message-card.admin-post .message-author {
   color: var(--admin);
 }
 
+/* ===== BEÁGYAZOTT VIDEÓ ===== */
 .video-embed {
   position: relative;
   aspect-ratio: 16 / 9;
@@ -221,6 +289,7 @@ textarea { min-height: 110px; resize: vertical; }
   border-radius: 10px;
   overflow: hidden;
   background: #000;
+  box-shadow: 0 0 22px rgba(255, 106, 26, 0.3);
 }
 
 .video-embed iframe,
@@ -306,8 +375,19 @@ button {
 button:hover {
   border-color: var(--accent);
   background: var(--accent-soft);
-  color: var(--accent-dark);
+  color: #ffb066;
+}
+
+#loading-text {
+  color: var(--muted);
 }
 
 .hidden { display: none !important; }
 .error { color: var(--error); font-size: 0.85rem; margin: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header h1,
+  body::after {
+    animation: none;
+  }
+}
