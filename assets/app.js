@@ -55,6 +55,42 @@ async function apiFetch(path, options = {}) {
   return data;
 }
 
+const YOUTUBE_URL_RE =
+  /https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^\s#]*&)?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?![A-Za-z0-9_-])[^\s]*/g;
+
+function extractYoutubeIds(text) {
+  const ids = [];
+  for (const match of text.matchAll(YOUTUBE_URL_RE)) {
+    if (!ids.includes(match[1])) ids.push(match[1]);
+  }
+  return ids;
+}
+
+// A lejátszó URL-t mi állítjuk össze a szigorúan ellenőrzött azonosítóból,
+// a felhasználói szöveg sosem kerül HTML-be nyersen.
+function renderVideoEmbed(videoId) {
+  const wrap = document.createElement("div");
+  wrap.className = "video-embed";
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "video-thumb";
+  btn.setAttribute("aria-label", "Videó lejátszása");
+  btn.style.backgroundImage = `url("https://i.ytimg.com/vi/${videoId}/hqdefault.jpg")`;
+  btn.innerHTML = '<span class="video-play" aria-hidden="true">▶</span>';
+  btn.addEventListener("click", () => {
+    const iframe = document.createElement("iframe");
+    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
+    iframe.title = "YouTube videó";
+    iframe.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+    wrap.replaceChildren(iframe);
+  });
+  wrap.appendChild(btn);
+  return wrap;
+}
+
 function renderReply(reply) {
   const div = document.createElement("div");
   div.className = "reply";
@@ -65,6 +101,10 @@ function renderReply(reply) {
     </div>
     <p class="message-text">${escapeHtml(reply.text)}</p>
   `;
+  // Videó beágyazás csak az admin (ronin) válaszaiban.
+  if (reply.author === "ronin") {
+    extractYoutubeIds(reply.text).forEach((id) => div.appendChild(renderVideoEmbed(id)));
+  }
   return div;
 }
 

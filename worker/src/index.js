@@ -1,4 +1,5 @@
 const MESSAGE_LABEL = "message";
+const DELETED_LABEL = "deleted";
 const ADMIN_REPLY_PREFIX = "**ronin (admin):**";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 óra
 const MAX_TEXT_LENGTH = 1000;
@@ -36,11 +37,18 @@ function githubApiUrl(env, path) {
 }
 
 function parseMessageBody(body) {
-  const match = /^\*\*Feladó:\*\* (.*)\n\n([\s\S]*)$/.exec(body || "");
-  if (!match) {
-    return { author: "Anonim", text: body || "" };
+  let raw = body || "";
+  let ip = null;
+  const ipMatch = /\n<!--ip:([^>]*)-->\s*$/.exec(raw);
+  if (ipMatch) {
+    ip = ipMatch[1];
+    raw = raw.slice(0, ipMatch.index);
   }
-  return { author: match[1].trim(), text: match[2] };
+  const match = /^\*\*Feladó:\*\* (.*)\n\n([\s\S]*)$/.exec(raw);
+  if (!match) {
+    return { author: "Anonim", text: raw, ip };
+  }
+  return { author: match[1].trim(), text: match[2], ip };
 }
 
 function parseCommentBody(body) {
@@ -112,22 +120,30 @@ async function fetchComments(env, issueNumber) {
   }));
 }
 
-async function toMessageDto(env, issue, includeComments) {
-  const { author, text } = parseMessageBody(issue.body);
+function isDeleted(issue) {
+  return (issue.labels || []).some((label) => (typeof label === "string" ? label : label.name) === DELETED_LABEL);
+}
+
+async function toMessageDto(env, issue, { includeComments = false, includeIp = false } = {}) {
+  const deleted = isDeleted(issue);
+  const { author, text, ip } = parseMessageBody(issue.body);
   const dto = {
     id: issue.number,
-    author,
-    text,
+    author: deleted ? "Törölve" : author,
+    text: deleted ? "Ez az üzenet törölve lett." : text,
     createdAt: issue.created_at,
-    state: issue.state,
+    state: deleted ? "deleted" : issue.state,
   };
+  if (includeIp) {
+    dto.ip = ip;
+  }
   if (includeComments) {
-    dto.replies = await fetchComments(env, issue.number);
+    dto.replies = deleted ? [] : await fetchComments(env, issue.number);
   }
   return dto;
 }
 
-async function listMessages(env, state) {
+async function listMessages(env, state, options = {}) {
   const res = await fetch(
     githubApiUrl(env, `/issues?labels=${MESSAGE_LABEL}&state=${state}&per_page=100&sort=created&direction=desc`),
     { headers: githubHeaders(env) }
@@ -136,7 +152,7 @@ async function listMessages(env, state) {
     throw new Error(`GitHub API hiba (${res.status}): ${await res.text()}`);
   }
   const issues = await res.json();
-  return Promise.all(issues.map((issue) => toMessageDto(env, issue, true)));
+  return Promise.all(issues.map((issue) => toMessageDto(env, issue, options)));
 }
 
 function sanitizeAuthor(author) {
